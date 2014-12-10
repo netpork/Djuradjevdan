@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * Created by netpork on 12/8/14.
  */
-public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener, MediaPlayer.OnPreparedListener {
+public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private static final String TAG = "MainPanel";
     private MainThread mThread;
 
@@ -29,8 +29,10 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
     public Djuradj djuradj;
     public Video mVideo;
     public Network network;
+    public DrawText drawText;
+    public Player player;
 
-    public MediaPlayer player;
+//    public MediaPlayer player;
 
     public float lastTouchY = 0;
 
@@ -55,6 +57,12 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         djuradj.render(Video.mCanvas);
 
+        if (player.playing) {
+            drawText.textLine("title: " + player.getTitle(), 0, 10);
+            drawText.textLine("description: " + player.getDescription(), 0, 11);
+            drawText.textLine("genre: " + player.getGenre(), 0, 12);
+        }
+
         Video.update(canvas);
 
         displayFps(canvas, avgFps);
@@ -63,7 +71,6 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
     public void startThread() {
         mThread.running = true;
         mThread.start();
-
     }
 
     private void displayFps(Canvas canvas, String fps) {
@@ -81,20 +88,6 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
         preload.execute();
         network = new Network(this);
         network.getTracks();
-
-        player = new MediaPlayer();
-        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        player.setOnPreparedListener(this);
-        player.setLooping(true);
-
-        try {
-            player.setDataSource("https://api.soundcloud.com/tracks/180638429/stream?client_id=38ca041fa742d7b29614329ac785f41d");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        player.prepareAsync();
-
     }
 
     @Override
@@ -114,8 +107,7 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
             } catch (InterruptedException e) {}
         }
 
-        player.stop();
-        player.release();
+        player.stopMusic();
 
         ((Activity)getContext()).finish();
     }
@@ -129,6 +121,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         mVideo = new Video(this);
         djuradj = new Djuradj(this);
+        drawText = new DrawText(this, Video.width, Video.height);
+        player = new Player(this);
+
     }
 
     @Override
@@ -149,10 +144,5 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
         }
 
         return true;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mediaPlayer) {
-        player.start();
     }
 }

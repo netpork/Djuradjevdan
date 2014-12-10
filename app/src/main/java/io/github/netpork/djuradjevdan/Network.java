@@ -37,13 +37,25 @@ public class Network {
                         for (int i = 0; i < response.length(); i++) {
                             try {
                                 JSONObject song = (JSONObject) response.get(i);
-                                Log.i(TAG, "song name: " + song.getString("title"));
+
+                                Track newTrack = new Track(
+                                        song.getString("title"),
+                                        song.getString("description"),
+                                        song.getString("genre"),
+                                        song.getInt("playback_count"),
+                                        song.getInt("favoritings_count"),
+                                        song.getString("stream_url")
+                                );
+
+                                panel.player.tracks.add(newTrack);
+//                                Log.i(TAG, "song name: " + song.getString("title"));
+
                             } catch (JSONException e) {
-                                e.printStackTrace();
+//                                e.printStackTrace();
                             }
-
                         }
-
+                        Log.i(TAG, "TRACKKKS: " + panel.player.getTracksSize());
+                        panel.player.play();
                     }
                 },
                 new Response.ErrorListener() {
@@ -57,8 +69,4 @@ public class Network {
 //        req.setShouldCache(false);
         AppController.getInstance().addToRequestQueue(req);
     }
-
-
-
-
 }
