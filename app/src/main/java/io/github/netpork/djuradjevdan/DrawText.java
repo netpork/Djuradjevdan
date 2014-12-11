@@ -30,7 +30,7 @@ public class DrawText {
 
     protected void textLine(String line, int x, int y) {
         int newX = x;
-        final int newY = y * (charHeight + 2);
+        final int newY = y * (charHeight + 2) + panel.djuradj.yOffset2;
         final int lineLength = line.length();
         int charIndex = 0;
 

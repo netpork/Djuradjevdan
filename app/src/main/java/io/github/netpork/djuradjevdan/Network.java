@@ -1,6 +1,7 @@
 package io.github.netpork.djuradjevdan;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -19,8 +20,6 @@ public class Network {
     private static final String TAG = "Network";
 
     private MainPanel panel;
-
-
     private final String urlTracks = "https://api.soundcloud.com/users/542351/tracks.json?client_id=38ca041fa742d7b29614329ac785f41d";
 
     public Network(MainPanel panel) {
@@ -28,6 +27,7 @@ public class Network {
     }
 
     protected void getTracks() {
+        showMessage("Fetching tracks from Sound Cloud");
         JsonArrayRequest req = new JsonArrayRequest(urlTracks,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -55,18 +55,25 @@ public class Network {
                             }
                         }
                         Log.i(TAG, "TRACKKKS: " + panel.player.getTracksSize());
+                        showMessage("Found " + panel.player.getTracksSize() + " songs...");
                         panel.player.play();
+                        panel.scroller.prepareScrollText();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         Log.i(TAG, "Volley error: " + volleyError.getMessage());
+                        showMessage("Error: " + volleyError.getMessage());
                     }
                 }
         );
 
 //        req.setShouldCache(false);
         AppController.getInstance().addToRequestQueue(req);
+    }
+
+    public void showMessage(String message) {
+        Toast.makeText(panel.context, message, Toast.LENGTH_SHORT).show();
     }
 }

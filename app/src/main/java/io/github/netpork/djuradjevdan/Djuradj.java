@@ -2,6 +2,7 @@ package io.github.netpork.djuradjevdan;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.view.View;
 
 /**
  * Created by netpork on 12/8/14.
@@ -10,6 +11,8 @@ public class Djuradj {
 
     private MainPanel panel;
     public int yOffset = 0;
+    public int yOffset2 = 0;
+    public int yDjura = 0, yScroller = 0;
 
     public static final int width = 180;
     public static final int height = 360;
@@ -21,8 +24,8 @@ public class Djuradj {
         this.panel = panel;
     }
 
-    public void update(Canvas canvas) {
-
+    public void update() {
+        setyOffset(yDjura, yScroller);
     }
 
     public void render(Canvas canvas) {
@@ -31,7 +34,7 @@ public class Djuradj {
         Video.mCanvas.drawBitmap(Preload.djuradj, src, dst, null);
     }
 
-    public void setyOffset(int yOffset) {
+    public void setyOffset(int yOffset, int yOffset2) {
         if (yOffset > (height - Video.height)) {
             yOffset = (height - Video.height);
         }
@@ -40,6 +43,15 @@ public class Djuradj {
             yOffset = 0;
         }
 
+        if (yOffset2 > (Video.height - panel.scroller.fontHeight)) {
+            yOffset2 = (Video.height - panel.scroller.fontHeight);
+        }
+
+        if (yOffset2 < 0) {
+            yOffset2 = 0;
+        }
+
         this.yOffset = yOffset;
+        this.yOffset2 = yOffset2;
     }
 }

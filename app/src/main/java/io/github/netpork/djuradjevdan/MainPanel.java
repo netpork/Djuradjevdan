@@ -3,24 +3,24 @@ package io.github.netpork.djuradjevdan;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.io.IOException;
 
 /**
  * Created by netpork on 12/8/14.
  */
 public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private static final String TAG = "MainPanel";
+
+    public Context context;
     private MainThread mThread;
+    private GestureDetector gestureDetector;
 
     public static int screenWidth, screenHeight;
     public static float density;
@@ -31,6 +31,7 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
     public Network network;
     public DrawText drawText;
     public Player player;
+    public Scroller scroller;
 
 //    public MediaPlayer player;
 
@@ -39,6 +40,7 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
     public MainPanel(Context context, DisplayMetrics metrics) {
         super(context);
+        this.context = context;
 
         density = metrics.density;
         getHolder().addCallback(this);
@@ -49,7 +51,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
     }
 
      public void update(Canvas canvas) {
-        djuradj.update(canvas);
+        djuradj.update();
+        if (player.playing) scroller.update();
+
     }
 
     public void render(Canvas canvas) {
@@ -57,11 +61,13 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         djuradj.render(Video.mCanvas);
 
-        if (player.playing) {
-            drawText.textLine("title: " + player.getTitle(), 0, 10);
-            drawText.textLine("description: " + player.getDescription(), 0, 11);
-            drawText.textLine("genre: " + player.getGenre(), 0, 12);
-        }
+        if (player.playing) scroller.draw(Video.mCanvas);
+
+/*
+            drawText.textLine("title: " + player.getTitle(), 0, 0);
+            drawText.textLine("description: " + player.getDescription(), 0, 1);
+            drawText.textLine("genre: " + player.getGenre(), 0, 2);
+*/
 
         Video.update(canvas);
 
@@ -121,9 +127,11 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         mVideo = new Video(this);
         djuradj = new Djuradj(this);
-        drawText = new DrawText(this, Video.width, Video.height);
+//        drawText = new DrawText(this, Video.width, Video.height);
         player = new Player(this);
+        scroller = new Scroller(16, 22, this);
 
+        gestureDetector = new GestureDetector(context, new GestureListener(this));
     }
 
     @Override
@@ -133,16 +141,21 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
             lastTouchY = motionEvent.getY();
         }
 
-
         if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
             final float y = motionEvent.getY();
             int newY = djuradj.yOffset;
-            newY += (int) -(y - lastTouchY);
+            int newY2 = djuradj.yOffset2;
 
-            djuradj.setyOffset(newY);
+            newY += (int) -(y - lastTouchY) * 1.1;
+            newY2 += (int) -(y - lastTouchY) * 1.7;
+
+            djuradj.yDjura = newY;
+            djuradj.yScroller = newY2;
+
             lastTouchY = y;
         }
 
+        gestureDetector.onTouchEvent(motionEvent);
         return true;
     }
 }
