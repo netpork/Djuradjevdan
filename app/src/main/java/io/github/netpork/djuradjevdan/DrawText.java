@@ -20,8 +20,6 @@ public class DrawText {
     private Rect src = new Rect();
     private Rect dst = new Rect();
 
-    private String text = "djuradj simic weirdcop transeen";
-
     public DrawText(MainPanel panel, int pageWidth, int pageHeight) {
         this.panel = panel;
         this.pageWidth = pageWidth;
@@ -30,7 +28,8 @@ public class DrawText {
 
     protected void textLine(String line, int x, int y) {
         int newX = x;
-        final int newY = y * (charHeight + 2) + panel.djuradj.yOffset2;
+//        final int newY = y * (charHeight + 2) + panel.djuradj.yOffset2;
+        final int newY = y;
         final int lineLength = line.length();
         int charIndex = 0;
 
@@ -42,7 +41,7 @@ public class DrawText {
             src.set(0, (charPosition * charHeight), charWidths[charPosition], charHeight + (charPosition * charHeight));
             dst.set(newX, newY, newX + charWidths[charPosition], newY + charHeight);
 
-            Video.mCanvas.drawBitmap(Preload.font, src, dst, null);
+            Video.mCanvas.drawBitmap(Preload.fontSmall, src, dst, null);
 
             charIndex++;
             newX += charWidths[charPosition] + 1;

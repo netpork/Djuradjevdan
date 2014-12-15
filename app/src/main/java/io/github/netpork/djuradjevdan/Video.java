@@ -25,7 +25,10 @@ public class Video {
         mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 
-        Log.i(TAG, "s:" + MainPanel.screenWidth + " " + "w:" + MainPanel.screenHeight);
+        if (MainPanel.DEVELOPMENT) {
+            Log.i(TAG, "s:" + MainPanel.screenWidth + " " + "w:" + MainPanel.screenHeight);
+        }
+
         yOffset = (int) (((MainPanel.screenHeight - (height * aspect) + 0.5) / 2) / aspect);
 
     }

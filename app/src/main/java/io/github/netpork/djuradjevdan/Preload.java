@@ -13,7 +13,7 @@ public class Preload extends AsyncTask <Void, Void, Void>{
     public static BitmapFactory.Options optionsNoScale;
 
     private MainPanel panel;
-    public static Bitmap djuradj, font;
+    public static Bitmap djuradj, font, notes, fontSmall;
 
     public Preload(MainPanel panel) {
         this.panel = panel;
@@ -27,7 +27,9 @@ public class Preload extends AsyncTask <Void, Void, Void>{
     @Override
     protected Void doInBackground(Void... voids) {
         djuradj = BitmapFactory.decodeResource(panel.getResources(), R.drawable.djuradj, optionsNoScale);
-        font = BitmapFactory.decodeResource(panel.getResources(), R.drawable.font_cute, optionsNoScale);
+        fontSmall = BitmapFactory.decodeResource(panel.getResources(), R.drawable.dvapudva, optionsNoScale);
+        font = BitmapFactory.decodeResource(panel.getResources(), R.drawable.font_cute_8, optionsNoScale);
+        notes = BitmapFactory.decodeResource(panel.getResources(), R.drawable.notes, optionsNoScale);
         return null;
     }
 

@@ -9,7 +9,7 @@ import com.android.volley.toolbox.Volley;
 
 public class AppController extends Application {
 
-    public static final String TAG = AppController.class.getSimpleName();
+    public static final String TAG = "AppController";
 
     private RequestQueue mRequestQueue;
 

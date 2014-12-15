@@ -64,7 +64,9 @@ public class MainThread extends Thread {
         long beginTime;
         int sleepTime = 0, frameSkipped;
 
-        initTimingElements();
+        if (MainPanel.DEVELOPMENT) {
+            initTimingElements();
+        }
 
         startTime = System.currentTimeMillis();
 
@@ -102,11 +104,12 @@ public class MainThread extends Thread {
                         frameSkipped++;
                     }
 
-                    // for statistics
-                    framesSkippedPerStatCycle += frameSkipped;
-                    // calling the routine to store the gathered statistics
-                    storeStats();
-
+                    if (MainPanel.DEVELOPMENT) {
+                        // for statistics
+                        framesSkippedPerStatCycle += frameSkipped;
+                        // calling the routine to store the gathered statistics
+                        storeStats();
+                    }
                 }
 
             } finally {
@@ -118,58 +121,61 @@ public class MainThread extends Thread {
     }
 
     private void storeStats() {
-        frameCountPerStatCycle++;
-        totalFrameCount++;
+        if (MainPanel.DEVELOPMENT) {
+            frameCountPerStatCycle++;
+            totalFrameCount++;
 
-        // check the actual time
-        statusIntervalTimer += (System.currentTimeMillis() - statusIntervalTimer);
+            // check the actual time
+            statusIntervalTimer += (System.currentTimeMillis() - statusIntervalTimer);
 
-        if (statusIntervalTimer >= lastStatusStore + STAT_INTERVAL) {
-            // calculate the actual frames pers status check interval
-            double actualFps = (double)(frameCountPerStatCycle / (STAT_INTERVAL / 1000));
+            if (statusIntervalTimer >= lastStatusStore + STAT_INTERVAL) {
+                // calculate the actual frames pers status check interval
+                double actualFps = (double) (frameCountPerStatCycle / (STAT_INTERVAL / 1000));
 
-            //stores the latest fps in the array
-            fpsStore[(int) statsCount % FPS_HISTORY_NR] = actualFps;
+                //stores the latest fps in the array
+                fpsStore[(int) statsCount % FPS_HISTORY_NR] = actualFps;
 
-            // increase the number of times statistics was calculated
-            statsCount++;
+                // increase the number of times statistics was calculated
+                statsCount++;
 
-            double totalFps = 0.0;
-            // sum up the stored fps values
-            for (int i = 0; i < FPS_HISTORY_NR; i++) {
-                totalFps += fpsStore[i];
-            }
+                double totalFps = 0.0;
+                // sum up the stored fps values
+                for (int i = 0; i < FPS_HISTORY_NR; i++) {
+                    totalFps += fpsStore[i];
+                }
 
-            // obtain the average
-            if (statsCount < FPS_HISTORY_NR) {
-                // in case of the first 10 triggers
-                averageFps = totalFps / statsCount;
-            } else {
-                averageFps = totalFps / FPS_HISTORY_NR;
-            }
-            // saving the number of total frames skipped
-            totalFramesSkipped += framesSkippedPerStatCycle;
-            // resetting the counters after a status record (1 sec)
-            framesSkippedPerStatCycle = 0;
-            statusIntervalTimer = 0;
-            frameCountPerStatCycle = 0;
+                // obtain the average
+                if (statsCount < FPS_HISTORY_NR) {
+                    // in case of the first 10 triggers
+                    averageFps = totalFps / statsCount;
+                } else {
+                    averageFps = totalFps / FPS_HISTORY_NR;
+                }
+                // saving the number of total frames skipped
+                totalFramesSkipped += framesSkippedPerStatCycle;
+                // resetting the counters after a status record (1 sec)
+                framesSkippedPerStatCycle = 0;
+                statusIntervalTimer = 0;
+                frameCountPerStatCycle = 0;
 
-            statusIntervalTimer = System.currentTimeMillis();
-            lastStatusStore = statusIntervalTimer;
+                statusIntervalTimer = System.currentTimeMillis();
+                lastStatusStore = statusIntervalTimer;
 //			Log.d(TAG, "Average FPS:" + df.format(averageFps));
 //            mPanel.setAvgFps("fps: " + df.format(averageFps));
-            mPanel.avgFps = "fps: " + df.format(averageFps);
+                mPanel.avgFps = "fps: " + df.format(averageFps);
+            }
         }
     }
 
-
     private void initTimingElements() {
-        // initialise timing elements
-        fpsStore = new double[FPS_HISTORY_NR];
-        for (int i = 0; i < FPS_HISTORY_NR; i++) {
-            fpsStore[i] = 0.0;
+        if (MainPanel.DEVELOPMENT) {
+            // initialise timing elements
+            fpsStore = new double[FPS_HISTORY_NR];
+            for (int i = 0; i < FPS_HISTORY_NR; i++) {
+                fpsStore[i] = 0.0;
+            }
+            Log.d(TAG + ".initTimingElements()", "Timing elements for stats initialised");
         }
-        Log.d(TAG + ".initTimingElements()", "Timing elements for stats initialised");
     }
 
     public static long getTimeDiff() {

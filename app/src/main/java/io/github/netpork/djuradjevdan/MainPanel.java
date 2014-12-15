@@ -1,6 +1,7 @@
 package io.github.netpork.djuradjevdan;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,6 +12,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.util.Random;
+
+import app.AppController;
+
 
 /**
  * Created by netpork on 12/8/14.
@@ -18,7 +23,9 @@ import android.view.View;
 public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private static final String TAG = "MainPanel";
 
-    public Context context;
+    public static final boolean DEVELOPMENT = false;
+
+    public static Context context;
     private MainThread mThread;
     private GestureDetector gestureDetector;
 
@@ -32,10 +39,13 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
     public DrawText drawText;
     public Player player;
     public Scroller scroller;
+    public Specimen specimen;
 
 //    public MediaPlayer player;
 
     public float lastTouchY = 0;
+    public static final Random RND = new Random();
+    public Paint fpsPaint;
 
 
     public MainPanel(Context context, DisplayMetrics metrics) {
@@ -47,13 +57,17 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
         setFocusable(true);
         setOnTouchListener(this);
 
+        fpsPaint = new Paint();
+        fpsPaint.setARGB(255, 255, 255, 255);
+        fpsPaint.setTextSize(15 * density);
+
         mThread = new MainThread(getHolder(), this);
     }
 
      public void update(Canvas canvas) {
         djuradj.update();
         if (player.playing) scroller.update();
-
+        specimen.update();
     }
 
     public void render(Canvas canvas) {
@@ -61,7 +75,10 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         djuradj.render(Video.mCanvas);
 
-        if (player.playing) scroller.draw(Video.mCanvas);
+        if (player.playing) {
+            specimen.draw(Video.mCanvas);
+            scroller.draw(Video.mCanvas);
+        }
 
 /*
             drawText.textLine("title: " + player.getTitle(), 0, 0);
@@ -71,7 +88,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         Video.update(canvas);
 
-        displayFps(canvas, avgFps);
+        if (DEVELOPMENT) {
+            displayFps(canvas, avgFps);
+        }
     }
 
     public void startThread() {
@@ -81,10 +100,7 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
     private void displayFps(Canvas canvas, String fps) {
         if (canvas != null && fps != null) {
-            Paint paint = new Paint();
-            paint.setARGB(255, 255, 255, 255);
-            paint.setTextSize(15 * density);
-            canvas.drawText(fps, (this.getWidth() - (70 * density)), 100 * density, paint);
+            canvas.drawText(fps, (this.getWidth() - (70 * density)), 100 * density, fpsPaint);
         }
     }
 
@@ -115,7 +131,16 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         player.stopMusic();
 
-        ((Activity)getContext()).finish();
+        // stop delayed switch track
+        Player.handler.removeCallbacksAndMessages(Player.playerSwitchSongRunnable);
+
+        // remove delayed toast message
+        Network.handler.removeCallbacksAndMessages(Network.toastMessageRunnable);
+
+        // cancel and remove volley requests
+        AppController.getInstance().cancelPendingRequests("AppController");
+
+        ((Activity) getContext()).finish();
     }
 
     @Override
@@ -127,10 +152,10 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
 
         mVideo = new Video(this);
         djuradj = new Djuradj(this);
-//        drawText = new DrawText(this, Video.width, Video.height);
+        drawText = new DrawText(this, Video.width, Video.height);
         player = new Player(this);
-        scroller = new Scroller(16, 22, this);
-
+        scroller = new Scroller(8, 11, this);
+        specimen = new Specimen(70);
         gestureDetector = new GestureDetector(context, new GestureListener(this));
     }
 

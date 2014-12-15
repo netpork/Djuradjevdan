@@ -32,6 +32,7 @@ public class Djuradj {
         src.set(0, yOffset, Video.width, Video.height + yOffset);
         dst.set(0, 0, Video.width, Video.height);
         Video.mCanvas.drawBitmap(Preload.djuradj, src, dst, null);
+        drawNotes();
     }
 
     public void setyOffset(int yOffset, int yOffset2) {
@@ -53,5 +54,11 @@ public class Djuradj {
 
         this.yOffset = yOffset;
         this.yOffset2 = yOffset2;
+    }
+
+    public void drawNotes() {
+        Video.mCanvas.drawBitmap(Preload.notes, 2, 2, null);
+        panel.drawText.textLine(panel.player.currentTrackIndex + 1 + "-" + panel.player.getTracksSize(), 2, 19);
+        if (panel.player.buffering) panel.drawText.textLine("buffering...", 20, 7);
     }
 }

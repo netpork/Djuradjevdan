@@ -113,16 +113,14 @@ public class Scroller {
 
     public void prepareScrollText() {
         setScrollText(
-                "Song: " + mPanel.player.getTitle() + " *" +
-                " Description: " + mPanel.player.getDescription() + " *" +
-                " Genre: " + mPanel.player.getGenre() + " *" +
-                " Playback count: " + mPanel.player.getPlaybackCount() + " *" +
-                " Favourtings count: " + mPanel.player.getFavorites()
+            mPanel.player.getTitle() + " * " +
+            mPanel.player.getDescription() + " * " +
+            mPanel.player.getGenre() + " * " +
+            "playbacks: " + mPanel.player.getPlaybackCount()
         );
         textScrollIndex = 0;
         bitmapScrollIndex = 0;
     }
-
 
     public void setScrollText(String text) {
         scrollText = (text + "                ").toLowerCase();

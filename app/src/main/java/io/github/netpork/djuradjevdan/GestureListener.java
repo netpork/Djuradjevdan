@@ -25,12 +25,12 @@ public class GestureListener extends GestureDetector.SimpleOnGestureListener {
         if (!mPanel.player.playing) return super.onFling(e1, e2, velocityX, velocityY);
 
         if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            Toast.makeText(mPanel.context, "fling left", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mPanel.context, "Previous track...", Toast.LENGTH_SHORT).show();
             mPanel.player.decreaseTrackIndex();
         }
 
         if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            Toast.makeText(mPanel.context, "fling right", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mPanel.context, "Next track...", Toast.LENGTH_SHORT).show();
             mPanel.player.increaseTrackIndex();
         }
 

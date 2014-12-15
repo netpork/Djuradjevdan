@@ -1,5 +1,7 @@
 package io.github.netpork.djuradjevdan;
 
+import android.app.Activity;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,9 +23,19 @@ public class Network {
 
     private MainPanel panel;
     private final String urlTracks = "https://api.soundcloud.com/users/542351/tracks.json?client_id=38ca041fa742d7b29614329ac785f41d";
+    public static Runnable toastMessageRunnable;
+    public static Handler handler;
 
     public Network(MainPanel panel) {
         this.panel = panel;
+        handler = new Handler();
+
+        toastMessageRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainPanel.context, "Use fling left or right to change tracks!", Toast.LENGTH_LONG).show();
+            }
+        };
     }
 
     protected void getTracks() {
@@ -32,7 +44,9 @@ public class Network {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.i(TAG, "tracks length: " + response.length());
+                        if (MainPanel.DEVELOPMENT) {
+                            Log.i(TAG, "tracks length: " + response.length());
+                        }
 
                         for (int i = 0; i < response.length(); i++) {
                             try {
@@ -54,17 +68,25 @@ public class Network {
 //                                e.printStackTrace();
                             }
                         }
-                        Log.i(TAG, "TRACKKKS: " + panel.player.getTracksSize());
+
+                        if (MainPanel.DEVELOPMENT) {
+                            Log.i(TAG, "TRACKKKS: " + panel.player.getTracksSize());
+                        }
+
                         showMessage("Found " + panel.player.getTracksSize() + " songs...");
                         panel.player.play();
                         panel.scroller.prepareScrollText();
+
+                        handler.postDelayed(toastMessageRunnable, 5000);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Log.i(TAG, "Volley error: " + volleyError.getMessage());
-                        showMessage("Error: " + volleyError.getMessage());
+                        if (MainPanel.DEVELOPMENT) {
+                            Log.i(TAG, "Volley error: " + volleyError.getMessage());
+                        }
+                        showMessage("Check your internet connection and relaunch application!");
                     }
                 }
         );
@@ -74,6 +96,6 @@ public class Network {
     }
 
     public void showMessage(String message) {
-        Toast.makeText(panel.context, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(panel.context, message, Toast.LENGTH_LONG).show();
     }
 }
