@@ -23,7 +23,7 @@ import app.AppController;
 public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
     private static final String TAG = "MainPanel";
 
-    public static final boolean DEVELOPMENT = false;
+    public static final boolean DEVELOPMENT = true;
 
     public static Context context;
     private MainThread mThread;
@@ -155,7 +155,7 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback, Vi
         drawText = new DrawText(this, Video.width, Video.height);
         player = new Player(this);
         scroller = new Scroller(8, 11, this);
-        specimen = new Specimen(70);
+        specimen = new Specimen(60);
         gestureDetector = new GestureDetector(context, new GestureListener(this));
     }
 

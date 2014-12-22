@@ -2,12 +2,14 @@ package io.github.netpork.djuradjevdan;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,9 @@ public class Player implements MediaPlayer.OnPreparedListener {
     private MainPanel panel;
 
     private MediaPlayer player;
+    public static float FFTAmplitude = 0;
+    private Visualizer mVisualizer;
+    private Visualizer.OnDataCaptureListener captureListener;
 
     public List<Track> tracks = new ArrayList<Track>();
 
@@ -29,8 +34,6 @@ public class Player implements MediaPlayer.OnPreparedListener {
     public static Handler handler;
     public static Runnable playerSwitchSongRunnable;
     public Toast toast;
-
-
 
     public Player(MainPanel panel) {
         this.panel = panel;
@@ -44,6 +47,30 @@ public class Player implements MediaPlayer.OnPreparedListener {
             @Override
             public void run() {
                 switchTrack();
+            }
+        };
+
+        captureListener = new Visualizer.OnDataCaptureListener() {
+            @Override
+            public void onWaveFormDataCapture(Visualizer visualizer, byte[] bytes, int i) {
+
+            }
+
+            @Override
+            public void onFftDataCapture(Visualizer visualizer, byte[] bytes, int i) {
+                float accumulator = 0;
+                for (int j = 0; j < bytes.length - 1; j++) {
+                    accumulator += Math.abs(bytes[j]);
+                }
+
+                final float amp = accumulator / (128 * bytes.length);
+//                if (amp > FFTAmplitude) {
+                    FFTAmplitude = amp;
+//                } else {
+//                    FFTAmplitude *= 0.99;
+//                }
+
+//                Log.i(TAG, "amp: " + FFTAmplitude);
             }
         };
     }
@@ -64,6 +91,7 @@ public class Player implements MediaPlayer.OnPreparedListener {
 //        panel.network.showMessage("Switching track...");
         playing = false;
         buffering = true;
+        mVisualizer.setEnabled(false);
         player.stop();
         player.reset();
         panel.scroller.prepareScrollText();
@@ -75,6 +103,8 @@ public class Player implements MediaPlayer.OnPreparedListener {
 
     public void stopMusic() {
         if (player.isPlaying()) {
+            mVisualizer.setEnabled(false);
+            mVisualizer.release();
             player.stop();
             player.release();
         }
@@ -103,7 +133,6 @@ public class Player implements MediaPlayer.OnPreparedListener {
     public String getFavorites() {
         return tracks.get(currentTrackIndex).favouritingsCount.toString().toLowerCase();
     }
-
 
     public void decreaseTrackIndex() {
         if (currentTrackIndex != 0) {
@@ -149,5 +178,10 @@ public class Player implements MediaPlayer.OnPreparedListener {
         playing = true;
         buffering = false;
 //        panel.network.showMessage("Play!");
+
+        mVisualizer = new Visualizer(player.getAudioSessionId());
+        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[0]);
+        mVisualizer.setDataCaptureListener(captureListener, Visualizer.getMaxCaptureRate() / 2, false, true);
+        mVisualizer.setEnabled(true);
     }
 }

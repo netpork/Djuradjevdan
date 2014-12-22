@@ -22,6 +22,7 @@ public class Network {
     private static final String TAG = "Network";
 
     private MainPanel panel;
+    private final String urlTracks = "https://api.soundcloud.com/users/542351/tracks.json?client_id=38ca041fa742d7b29614329ac785f41d";
     public static Runnable toastMessageRunnable;
     public static Handler handler;
 
@@ -64,7 +65,7 @@ public class Network {
 //                                Log.i(TAG, "song name: " + song.getString("title"));
 
                             } catch (JSONException e) {
-//                                e.printStackTrace();
+                                e.printStackTrace();
                             }
                         }
 
